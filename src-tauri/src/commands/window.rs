@@ -20,7 +20,7 @@
 
 //! 窗口生命周期、几何过渡与显示操作命令。
 
-use super::input::{cursor, number, source};
+use super::input::{cursor, number, source, store_write};
 use crate::features::capture;
 use crate::features::windowing as windows;
 use crate::shared::geometry::Rect;
@@ -45,6 +45,7 @@ pub(super) fn handles(channel: &str) -> bool {
                 | "window:get-mouse-position"
                 | "window:get-mouse-window-state"
                 | "window:move-delta"
+                | "window:island-position:save"
                 | "window:hide"
                 | "window:show"
                 | "window:start-dragging"
@@ -150,31 +151,49 @@ pub(super) fn handle(
             if dx.abs() > 100000. || dy.abs() > 100000. {
                 return Err("Move exceeds desktop bounds".into());
             }
-            let (backing, visible) = {
+            // Fixierte Position: Verschieben wird auch im Hauptprozess verweigert.
+            if app
+                .state::<Desktop>()
+                .store
+                .lock()
+                .unwrap()
+                .value("island-position-locked", json!(false))
+                == true
+            {
+                return Ok(Value::Null);
+            }
+            let area = windows::monitor_rect(&windows::target_monitor(&app)?);
+            let (target, visible) = {
                 let state = app.state::<Desktop>();
                 let mut s = state.inner.lock().unwrap();
                 s.generation += 1;
                 s.pending = None;
                 s.transition = None;
-                (
-                    Rect {
-                        x: s.backing.x + dx,
-                        y: s.backing.y + dy,
-                        ..s.backing
-                    },
-                    s.visible,
-                )
+                let target = Rect::centered(
+                    s.backing.x + dx + s.backing.width / 2.,
+                    s.backing.y + dy,
+                    s.visible.width,
+                    s.visible.height,
+                );
+                // Nur Pill-Modus: auf den oberen Bildschirmbereich und innerhalb des Bildschirms begrenzen.
+                let target = if s.shape == "pill" {
+                    windows::clamp_to_top(area, target)
+                } else {
+                    target
+                };
+                if s.shape == "pill" {
+                    // Heimposition mitführen, damit Vergrössern/Verkleinern und Speichern konsistent bleiben.
+                    s.offset.x = target.x + target.width / 2. - (area.x + area.width / 2.);
+                    s.offset.y = target.y - area.y - 46.;
+                }
+                (target, s.visible)
             };
-            windows::apply_geometry(
-                &app,
-                Rect::centered(
-                    backing.x + backing.width / 2.,
-                    backing.y,
-                    visible.width,
-                    visible.height,
-                ),
-                visible,
-            )?;
+            windows::apply_geometry(&app, target, visible)?;
+        }
+        "window:island-position:save" => {
+            source(&window, "main")?;
+            let offset = app.state::<Desktop>().inner.lock().unwrap().offset;
+            store_write(&app, "island-position-offset", &json!(offset))?;
         }
         "window:hide" => windows::hide_main(&app)?,
         "window:show" => windows::show_main(&app)?,

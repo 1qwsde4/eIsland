@@ -29,6 +29,7 @@ import useIslandStore from '../../store/isLandStore';
 import { getIslandMorphDuration } from '../../store/constants/islandTransition';
 import { completeIslandWindowTransition, getIslandWindowTransitionId, subscribeIslandWindowTransition } from '../../utils/islandWindowTransition';
 import type { IslandState } from '../../store/types';
+import { COMPACT_MUSIC_WIDGET } from '../config/dynamicIslandStateConfig';
 
 const MUSIC_OUTER_GLOW_EFFECT_STORE_KEY = 'music-outer-glow-effect-enabled';
 
@@ -170,7 +171,8 @@ export function useDynamicIslandShell(options: UseDynamicIslandShellOptions): Dy
   return {
     morphing,
     fromState,
-    showGlow: glowEffectEnabled && isMusicPlaying && coverImage ? (isPlaying ? 'playing' : 'paused') : null,
+    // Kompaktes Widget: rotierende Randlinie um die Insel ist entfernt.
+    showGlow: !COMPACT_MUSIC_WIDGET && glowEffectEnabled && isMusicPlaying && coverImage ? (isPlaying ? 'playing' : 'paused') : null,
     handleIslandClick,
   };
 }

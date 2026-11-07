@@ -59,6 +59,19 @@ pub fn target_monitor(app: &AppHandle) -> Result<tauri::Monitor> {
         .ok_or_else(|| "No display found".into())
 }
 
+/// Höhe des oberen Bildschirmbereichs (in DIP), in dem sich die Pill-Insel bewegen darf.
+pub const TOP_BAND: f64 = 120.;
+
+/// Hält die Pill-Insel vollständig auf dem Bildschirm und nur im oberen Bereich.
+pub fn clamp_to_top(area: Rect, rect: Rect) -> Rect {
+    let max_x = (area.x + area.width - rect.width).max(area.x);
+    Rect {
+        x: rect.x.clamp(area.x, max_x),
+        y: rect.y.clamp(area.y, area.y + TOP_BAND),
+        ..rect
+    }
+}
+
 pub fn set_rect(window: &WebviewWindow, rect: Rect) -> Result<()> {
     window
         .set_size(tauri::LogicalSize::new(rect.width, rect.height))
@@ -112,7 +125,12 @@ pub fn reposition(app: &AppHandle) -> Result<()> {
         state.generation += 1;
         state.pending = None;
         state.transition = None;
-        Rect::centered(state.center, y, width, height)
+        let rect = Rect::centered(state.center, y, width, height);
+        if state.shape == "pill" {
+            clamp_to_top(area, rect)
+        } else {
+            rect
+        }
     };
     apply_geometry(app, target, target)
 }
@@ -126,8 +144,9 @@ pub fn resize(app: &AppHandle, mode: &str, delay_ms: u64) -> Result<()> {
         let (width, height) =
             geometry::state_size(mode, s.shape == "pill", s.scale).ok_or("Invalid island state")?;
         s.mode = mode.into();
+        // Pill: gespeicherte Heimposition als Mitte, damit die Insel beim Vergrössern/Verkleinern nicht driftet.
         let center = if s.shape == "pill" {
-            s.backing.x + s.backing.width / 2.
+            area.x + area.width / 2. + s.offset.x
         } else {
             s.center
         };
@@ -137,6 +156,11 @@ pub fn resize(app: &AppHandle, mode: &str, delay_ms: u64) -> Result<()> {
             area.y
         };
         let target = Rect::centered(center, y, width, height);
+        let target = if s.shape == "pill" {
+            clamp_to_top(area, target)
+        } else {
+            target
+        };
         if s.pending == Some(target) && delay_ms > 0 {
             return Ok(());
         }

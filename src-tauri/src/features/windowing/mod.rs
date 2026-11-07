@@ -35,8 +35,8 @@ pub(crate) mod shortcuts;
 pub(crate) use creation::create;
 mod layout;
 pub(crate) use layout::{
-    apply_geometry, finish_resize, monitor_id, monitor_rect, reposition, resize, set_rect,
-    target_monitor,
+    apply_geometry, clamp_to_top, finish_resize, monitor_id, monitor_rect, reposition, resize,
+    set_rect, target_monitor,
 };
 mod visibility;
 pub(crate) use visibility::{

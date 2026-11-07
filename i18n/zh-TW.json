@@ -3025,13 +3025,15 @@
         "zh-CN": "簡體中文",
         "en-US": "English",
         "zh-TW": "繁體中文",
-        "ja-JP": "日本語"
+        "ja-JP": "日本語",
+        "ru-RU": "俄語"
       },
       "current": {
         "zh-CN": "當前語言：簡體中文",
         "en-US": "Current language: English",
         "zh-TW": "當前語言：繁體中文",
-        "ja-JP": "當前語言：日本語"
+        "ja-JP": "當前語言：日本語",
+        "ru-RU": "目前語言：俄語"
       }
     },
     "app": {
@@ -4896,7 +4898,10 @@
       "next": "下一首",
       "seek": "播放進度",
       "seekValue": "{{position}} / {{duration}}"
-    }
+    },
+    "hideIsland10s": "隱藏 10 秒",
+    "hideIsland15s": "隱藏 15 秒",
+    "positionLock": "固定位置"
   },
   "devCli": {
     "help": {

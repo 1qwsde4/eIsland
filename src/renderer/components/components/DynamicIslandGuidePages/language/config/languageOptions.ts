@@ -44,5 +44,5 @@ export const LANGUAGE_OPTIONS: LanguageOption[] = [
   { value: 'fr-FR', labelKey: 'guide.language.frFR', icon: CountryIcon.FR, available: false },
   { value: 'de-DE', labelKey: 'guide.language.deDE', icon: CountryIcon.DE, available: false },
   { value: 'es-ES', labelKey: 'guide.language.esES', icon: CountryIcon.ES, available: false },
-  { value: 'ru-RU', labelKey: 'guide.language.ruRU', icon: CountryIcon.RU, available: false },
+  { value: 'ru-RU', labelKey: 'guide.language.ruRU', icon: CountryIcon.RU, available: true },
 ];

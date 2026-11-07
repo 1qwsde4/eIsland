@@ -51,6 +51,50 @@ pub(crate) fn set_shape(app: &AppHandle, mode: &str) -> Result<()> {
     windows::broadcast(app, "island:shape-mode", json!(mode))
 }
 
+/// Blendet die Insel für 10 oder 15 Sekunden aus und zeigt sie danach automatisch wieder.
+pub(crate) fn hide_temporarily(app: &AppHandle, seconds: u64) -> Result<()> {
+    if !matches!(seconds, 10 | 15) {
+        return Err("Invalid hide duration".into());
+    }
+    windows::hide_main(app)?;
+    let generation = app
+        .state::<Desktop>()
+        .inner
+        .lock()
+        .unwrap()
+        .visibility_generation;
+    let handle = app.clone();
+    tauri::async_runtime::spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_secs(seconds)).await;
+        // Nur wiederherstellen, wenn die Insel seitdem nicht manuell neu angezeigt/ausgeblendet wurde.
+        let still_hidden = {
+            let state = handle.state::<Desktop>();
+            let s = state.inner.lock().unwrap();
+            s.manually_hidden && s.visibility_generation == generation
+        };
+        if still_hidden {
+            if let Err(error) = windows::show_main(&handle) {
+                eprintln!("[Window] show after temporary hide: {error}");
+            }
+        }
+    });
+    Ok(())
+}
+
+/// Wechselt zwischen fixierter und frei verschiebbarer Position.
+pub(crate) fn toggle_position_lock(app: &AppHandle) -> Result<()> {
+    let locked = app
+        .state::<Desktop>()
+        .store
+        .lock()
+        .unwrap()
+        .value("island-position-locked", json!(false))
+        == true;
+    let next = json!(!locked);
+    store_write(app, "island-position-locked", &next)?;
+    windows::broadcast(app, "store:island-position-locked", next)
+}
+
 pub(crate) fn open_logs(app: &AppHandle) -> Result<()> {
     let path = app.path().app_log_dir().map_err(|e| e.to_string())?;
     std::fs::create_dir_all(&path).map_err(|e| e.to_string())?;
@@ -63,6 +107,9 @@ pub(crate) fn menu_action(app: &AppHandle, action: &str) -> Result<()> {
     match action {
         "show-island" => windows::show_main(app),
         "hide-island" => windows::hide_main(app),
+        "hide-island-10s" => hide_temporarily(app, 10),
+        "hide-island-15s" => hide_temporarily(app, 15),
+        "toggle-position-lock" => toggle_position_lock(app),
         "open-settings" => {
             store_write(app, "standalone-window-active-tab", &json!("settings"))?;
             windows::broadcast(app, "store:standalone-window-active-tab", json!("settings"))?;

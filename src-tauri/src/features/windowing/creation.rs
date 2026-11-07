@@ -83,7 +83,8 @@ pub fn create(app: &AppHandle, label: &str) -> Result<WebviewWindow> {
         // transparent splash's CSS-rounded surface.
         .shadow(label == "splash" && !cfg!(windows))
         .resizable(label == "standalone")
-        .skip_taskbar(label != "standalone" && label != "guide")
+        // Kein Taskleisten-Eintrag für irgendein Fenster der App (nur im Task-Manager sichtbar).
+        .skip_taskbar(true)
         .always_on_top(label != "standalone" && label != "guide")
         // WebView2 must initialize its render HWND before Wry registers file-drop targets.
         // Hidden, unfocused views can otherwise miss Explorer drops (wry#1638).

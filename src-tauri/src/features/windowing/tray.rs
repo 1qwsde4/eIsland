@@ -66,6 +66,7 @@ pub fn flush_menu(app: &AppHandle) -> Result<()> {
             "windowAvailable": app.get_webview_window("main").is_some(), "alwaysOnTop":top,
             "standaloneMode":store.value("standalone-window-mode", json!("inline")) == "standalone",
             "language":store.value("i18n-language", json!("zh-CN")),
+            "positionLocked":store.value("island-position-locked", json!(false)) == true,
         }]),
     )
 }

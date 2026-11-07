@@ -31,6 +31,9 @@ import type { IslandShapeMode, IslandState } from '../../store/types';
 /** 拖动距离阈值（像素），低于此值视为点击 */
 const DRAG_THRESHOLD = 4;
 
+/** Bedienelemente, auf denen im Hover-Zustand kein Ziehen startet */
+const INTERACTIVE_SELECTOR = 'button, input, select, textarea, a, [role="button"], [role="slider"], [data-no-drag]';
+
 interface UseIslandDragOptions {
   shapeMode: IslandShapeMode;
   state: IslandState;
@@ -72,7 +75,7 @@ export function useIslandDrag(options: UseIslandDragOptions): UseIslandDragResul
   const hasMovedRef = useRef(false);
 
   /** 允许拖动的状态集合 */
-  const draggable = shapeMode === 'pill' && (state === 'idle' || state === 'lyrics' || state === 'lyricsTranslation' || state === 'agentVoiceInput');
+  const draggable = shapeMode === 'pill' && (state === 'idle' || state === 'hover' || state === 'lyrics' || state === 'lyricsTranslation' || state === 'agentVoiceInput');
 
   useEffect(() => {
     if (!draggable) return;
@@ -128,6 +131,8 @@ export function useIslandDrag(options: UseIslandDragOptions): UseIslandDragResul
 
     const handleMouseDown = (e: MouseEvent): void => {
       if (e.button !== 0 || positionLockedRef.current) return;
+      // Im grossen Hover-Zustand nur auf freien Flächen ziehen, nicht auf Bedienelementen.
+      if (state === 'hover' && (e.target as HTMLElement | null)?.closest?.(INTERACTIVE_SELECTOR)) return;
       cancelDrag();
       isDraggingRef.current = true;
       hasMovedRef.current = false;
@@ -150,6 +155,13 @@ export function useIslandDrag(options: UseIslandDragOptions): UseIslandDragResul
         cancelAnimationFrame(animationFrameId);
         flushPendingMovement();
       }
+      // Nach dem letzten Bewegungsschritt die Position dauerhaft speichern (Neustart-fest).
+      if (hasMovedRef.current) {
+        const session = dragSessionRef.current;
+        void (session ? session.position : Promise.resolve(null)).then(() => {
+          window.api?.saveIslandPosition?.();
+        });
+      }
     };
 
     document.addEventListener('mousedown', handleMouseDown);
@@ -166,7 +178,7 @@ export function useIslandDrag(options: UseIslandDragOptions): UseIslandDragResul
       /** 形态模式切换（如 pill→notch）导致 draggable 变为 false 时，重置拖动标记以恢复点击 */
       hasMovedRef.current = false;
     };
-  }, [draggable, positionLockedRef]);
+  }, [draggable, positionLockedRef, state]);
 
   const wrapClick = useCallback((handler: () => void) => async () => {
     try {

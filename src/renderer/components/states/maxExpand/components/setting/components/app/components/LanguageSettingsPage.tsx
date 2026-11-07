@@ -55,6 +55,7 @@ export function LanguageSettingsPage({ appLanguage, applyAppLanguage }: Language
               { value: 'en-US', label: t('settings.language.options.en-US', { defaultValue: 'English' }) },
               { value: 'zh-TW', label: t('settings.language.options.zh-TW', { defaultValue: '繁體中文' }) },
               { value: 'ja-JP', label: t('settings.language.options.ja-JP', { defaultValue: '日本語' }) },
+              { value: 'ru-RU', label: t('settings.language.options.ru-RU', { defaultValue: 'Русский' }) },
             ] as Array<{ value: AppLanguage; label: string }>).map((opt) => {
               const iconSrc = resolveCountryIcon(opt.value);
               return (

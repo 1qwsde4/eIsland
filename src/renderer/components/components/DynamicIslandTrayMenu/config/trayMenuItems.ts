@@ -30,8 +30,11 @@ import type { TrayMenuItemConfig } from '../types';
 export const TRAY_MENU_ITEMS: readonly TrayMenuItemConfig[] = [
   { kind: 'action', action: 'show-island', labelKey: 'tray.showIsland', requiresWindow: true },
   { kind: 'action', action: 'hide-island', labelKey: 'tray.hideIsland', requiresWindow: true },
+  { kind: 'action', action: 'hide-island-10s', labelKey: 'tray.hideIsland10s', requiresWindow: true },
+  { kind: 'action', action: 'hide-island-15s', labelKey: 'tray.hideIsland15s', requiresWindow: true },
   { kind: 'action', action: 'open-settings', labelKey: 'tray.openSettings', standaloneOnly: true },
   { kind: 'toggle', action: 'toggle-always-on-top', labelKey: 'tray.alwaysOnTop', requiresWindow: true },
+  { kind: 'toggle', action: 'toggle-position-lock', labelKey: 'tray.positionLock', requiresWindow: true },
   { kind: 'separator', id: 'window-actions' },
   { kind: 'action', action: 'open-log-folder', labelKey: 'tray.openLogFolder' },
   { kind: 'action', action: 'restart', labelKey: 'tray.restart' },

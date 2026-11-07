@@ -28,6 +28,7 @@ import { useCallback, useEffect } from 'react';
 import useIslandStore from '../../store/isLandStore';
 import type { IslandState } from './useDynamicIslandShell';
 import { STATE_CONFIGS, isMouseInWindow } from '../config/dynamicIslandConfig';
+import { COMPACT_MUSIC_WIDGET } from '../config/dynamicIslandStateConfig';
 import { isCurrentLyricIdenticalToTranslation } from '../states/lyrics/utils/isCurrentLyricIdenticalToTranslation';
 
 /** 不自动离开悬停状态的面板状态集合 */
@@ -200,7 +201,7 @@ export function useIslandHoverInteraction(options: UseIslandHoverInteractionOpti
 
               isHoveringRef.current = false;
               const store = useIslandStore.getState();
-              if (store.isPlaying && store.timerData.state === 'idle' && ((store.syncedLyrics?.length ?? 0) > 0 || store.lyricsLoading)) {
+              if (!COMPACT_MUSIC_WIDGET && store.isPlaying && store.timerData.state === 'idle' && ((store.syncedLyrics?.length ?? 0) > 0 || store.lyricsLoading)) {
                 const hasTranslation = store.translationLyrics?.status === 'available'
                   && Boolean(store.translationLyrics.lines && store.translationLyrics.lines.length > 0);
                 if (hasTranslation) {

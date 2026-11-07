@@ -30,9 +30,10 @@ import zhCN from '../../../i18n/zh-CN.json';
 import enUS from '../../../i18n/en-US.json';
 import zhTW from '../../../i18n/zh-TW.json';
 import jaJP from '../../../i18n/ja-JP.json';
+import ruRU from '../../../i18n/ru-RU.json';
 
 const I18N_LANGUAGE_STORE_KEY = 'i18n-language';
-const SUPPORTED_LANGUAGES = ['zh-CN', 'en-US', 'zh-TW', 'ja-JP'] as const;
+const SUPPORTED_LANGUAGES = ['zh-CN', 'en-US', 'zh-TW', 'ja-JP', 'ru-RU'] as const;
 
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
@@ -42,6 +43,7 @@ function normalizeLanguage(raw: string | null | undefined): AppLanguage {
   if (raw === 'zh' || raw === 'zh-CN' || raw === 'zh-Hans' || raw.startsWith('zh-')) return 'zh-CN';
   if (raw === 'en' || raw === 'en-US' || raw.startsWith('en-')) return 'en-US';
   if (raw === 'ja' || raw === 'ja-JP' || raw.startsWith('ja-')) return 'ja-JP';
+  if (raw === 'ru' || raw === 'ru-RU' || raw.startsWith('ru-')) return 'ru-RU';
   return 'zh-CN';
 }
 
@@ -69,7 +71,8 @@ export function getLanguage(): AppLanguage {
 function getInitialLanguage(): AppLanguage {
   const stored = getStoredLanguage();
   if (stored) return stored;
-  return normalizeLanguage(navigator.language);
+  // Russisch ist die Standardsprache, solange keine andere Sprache gespeichert wurde.
+  return 'ru-RU';
 }
 
 /**
@@ -106,9 +109,13 @@ i18n
       'ja-JP': {
         translation: jaJP,
       },
+      'ru-RU': {
+        translation: ruRU,
+      },
     },
     lng: getInitialLanguage(),
-    fallbackLng: 'zh-CN',
+    // Fehlende russische Schlüssel fallen zuerst auf Englisch zurück.
+    fallbackLng: { 'ru-RU': ['en-US', 'zh-CN'], default: ['zh-CN'] },
     interpolation: {
       escapeValue: false,
     },

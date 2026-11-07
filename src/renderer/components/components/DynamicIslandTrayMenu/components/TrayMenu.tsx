@@ -89,7 +89,7 @@ export function TrayMenu(): ReactElement {
             <TrayMenuItem
               key={item.action}
               label={t(item.labelKey)}
-              checked={item.kind === 'toggle' ? menuState.alwaysOnTop : undefined}
+              checked={item.kind === 'toggle' ? (item.action === 'toggle-position-lock' ? Boolean(menuState.positionLocked) : menuState.alwaysOnTop) : undefined}
               disabled={Boolean(item.requiresWindow) && !menuState.windowAvailable}
               danger={item.danger}
               onSelect={() => window.api.trayMenuAction(item.action)}

@@ -3025,13 +3025,15 @@
         "zh-CN": "简体中文",
         "en-US": "English",
         "zh-TW": "繁體中文",
-        "ja-JP": "日本語"
+        "ja-JP": "日本語",
+        "ru-RU": "ロシア語"
       },
       "current": {
         "zh-CN": "現在の言語：简体中文",
         "en-US": "現在の言語：English",
         "zh-TW": "現在の言語：繁體中文",
-        "ja-JP": "現在の言語：日本語"
+        "ja-JP": "現在の言語：日本語",
+        "ru-RU": "現在の言語：ロシア語"
       }
     },
     "app": {
@@ -4896,7 +4898,10 @@
       "next": "次の曲",
       "seek": "再生位置",
       "seekValue": "{{position}} / {{duration}}"
-    }
+    },
+    "hideIsland10s": "10秒間非表示",
+    "hideIsland15s": "15秒間非表示",
+    "positionLock": "位置を固定"
   },
   "devCli": {
     "help": {

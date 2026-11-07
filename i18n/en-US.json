@@ -3025,13 +3025,15 @@
         "zh-CN": "Simplified Chinese",
         "en-US": "English",
         "zh-TW": "Traditional Chinese",
-        "ja-JP": "Japanese"
+        "ja-JP": "Japanese",
+        "ru-RU": "Russian"
       },
       "current": {
         "zh-CN": "Current language: Simplified Chinese",
         "en-US": "Current language: English",
         "zh-TW": "Current language: Traditional Chinese",
-        "ja-JP": "Current language: Japanese"
+        "ja-JP": "Current language: Japanese",
+        "ru-RU": "Current language: Russian"
       }
     },
     "app": {
@@ -4896,7 +4898,10 @@
       "next": "Next",
       "seek": "Playback position",
       "seekValue": "{{position}} of {{duration}}"
-    }
+    },
+    "hideIsland10s": "Hide for 10 s",
+    "hideIsland15s": "Hide for 15 s",
+    "positionLock": "Lock Position"
   },
   "devCli": {
     "help": {

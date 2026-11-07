@@ -28,6 +28,9 @@
 export type TrayMenuAction =
   | 'show-island'
   | 'hide-island'
+  | 'hide-island-10s'
+  | 'hide-island-15s'
+  | 'toggle-position-lock'
   | 'open-settings'
   | 'toggle-always-on-top'
   | 'open-log-folder'
@@ -38,6 +41,9 @@ export type TrayMenuAction =
 export const TRAY_MENU_ACTIONS: readonly TrayMenuAction[] = [
   'show-island',
   'hide-island',
+  'hide-island-10s',
+  'hide-island-15s',
+  'toggle-position-lock',
   'open-settings',
   'toggle-always-on-top',
   'open-log-folder',
@@ -51,6 +57,8 @@ export interface TrayMenuState {
   windowAvailable: boolean;
   /** 窗口置顶是否开启 */
   alwaysOnTop: boolean;
+  /** Insel-Position fixiert (nicht verschiebbar) */
+  positionLocked?: boolean;
   /** 是否处于独立窗口模式，决定是否显示“打开配置界面” */
   standaloneMode: boolean;
   /** 界面语言，菜单窗口据此同步文案 */

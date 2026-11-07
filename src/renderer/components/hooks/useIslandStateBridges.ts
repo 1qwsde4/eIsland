@@ -29,6 +29,7 @@ import type { SyncedLyricLine, TimerState } from '../../store/types';
 import type { TranslationLyricsResult } from '../../api/lyrics/lrcApi';
 import type { IslandState } from './useDynamicIslandShell';
 import useIslandStore from '../../store/isLandStore';
+import { COMPACT_MUSIC_WIDGET } from '../config/dynamicIslandStateConfig';
 import { isCurrentLyricIdenticalToTranslation } from '../states/lyrics/utils/isCurrentLyricIdenticalToTranslation';
 
 interface UseIslandStateBridgesOptions {
@@ -102,7 +103,8 @@ export function useIslandStateBridges(options: UseIslandStateBridgesOptions): vo
   }, [state, setAgentVoiceInput, setIdle]);
 
   useEffect(() => {
-    if (!lyricsEnabled) return;
+    // Kompaktes Widget: Beim Musikhören bleibt der Zustand 'idle' (kein Songtext, keine Vergrösserung).
+    if (COMPACT_MUSIC_WIDGET || !lyricsEnabled) return;
     if (state !== 'idle') return;
     if (timerState !== 'idle') return;
     if (isPlaying && ((syncedLyrics?.length ?? 0) > 0 || lyricsLoading)) {

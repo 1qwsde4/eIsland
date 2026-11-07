@@ -188,6 +188,12 @@ const api = {
     desktop.send('window:move-delta', dx, dy);
   },
   /**
+   * Speichert die aktuelle Inselposition (nach dem Ziehen), damit sie nach einem Neustart erhalten bleibt
+   */
+  saveIslandPosition: (): void => {
+    desktop.send('window:island-position:save');
+  },
+  /**
    * 隐藏窗口
    */
   hideWindow: (): void => {

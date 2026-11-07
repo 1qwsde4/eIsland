@@ -154,7 +154,7 @@ export function useSettingsSyncEffects(options: SettingsSyncEffectsOptions): voi
       if (channel === `store:${SETTINGS_OPEN_TAB_STORE_KEY}`) {
         applyOpenTabIntent(value);
       }
-      if (channel === 'i18n:language' && (value === 'zh-CN' || value === 'en-US' || value === 'zh-TW' || value === 'ja-JP')) {
+      if (channel === 'i18n:language' && (value === 'zh-CN' || value === 'en-US' || value === 'zh-TW' || value === 'ja-JP' || value === 'ru-RU')) {
         setAppLanguage(value);
       }
       if (channel === `store:${STANDALONE_WINDOW_MAC_CONTROLS_STORE_KEY}`) {

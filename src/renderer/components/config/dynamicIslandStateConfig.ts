@@ -209,3 +209,9 @@ export const STATE_CONFIGS: Record<IslandState, StateConfig> = {
 export function getStateClassName(state: IslandState): string {
   return state === 'idle' ? '' : state;
 }
+
+/**
+ * Kompaktes Musik-Widget: Beim Musikhören bleibt die Insel klein (Zustand 'idle'),
+ * ohne Songtext/Lyrics-Zustand und ohne rotierende Randlinie. Vergrösserung nur per Mausover.
+ */
+export const COMPACT_MUSIC_WIDGET = true;

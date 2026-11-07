@@ -167,7 +167,7 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     hasActiveCliSessionRef,
     idleClickExpandRef,
     isHoveringRef,
-    forceClickToHover: shapeMode === 'pill',
+    forceClickToHover: false,
   });
 
   useIslandNowPlayingSync({
@@ -288,7 +288,7 @@ export function useDynamicIslandCoordinator(options: UseDynamicIslandCoordinator
     maxExpandLeaveIdleRef,
     enterTimerRef,
     leaveTimerRef,
-    forceClickToHover: shapeMode === 'pill',
+    forceClickToHover: false,
   });
 
   const {
