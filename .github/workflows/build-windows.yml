@@ -1,0 +1,62 @@
+name: Build eIsland Windows (Setup + Portable)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24.22.1'
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Prepare FFmpeg binary
+        run: node node_modules/ffmpeg-static/install.js
+      - name: Build native plugin resources
+        run: npm run plugins:build
+      - name: Build installer without updater signing
+        shell: pwsh
+        run: |
+          '{"bundle":{"createUpdaterArtifacts":false}}' | Set-Content -Encoding utf8 ci-tauri.json
+          npx tauri build --bundles nsis --config ci-tauri.json
+      - name: Collect Setup, EXE and Portable ZIP
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out-final | Out-Null
+          $setup = Get-ChildItem src-tauri/target/release/bundle/nsis -Filter '*-setup.exe' | Select-Object -First 1
+          if (-not $setup) { throw 'Installer not found' }
+          Copy-Item $setup.FullName out-final/eIsland-Setup.exe
+          $portable = Join-Path $env:RUNNER_TEMP 'eIsland-Portable'
+          $p = Start-Process -FilePath $setup.FullName -ArgumentList '/S', "/D=$portable" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Silent install failed: $($p.ExitCode)" }
+          $exe = Get-ChildItem $portable -Filter '*.exe' | Where-Object { $_.Name -notmatch 'uninstall' } | Select-Object -First 1
+          if (-not $exe) { throw 'Installed exe not found' }
+          Copy-Item $exe.FullName out-final/eIsland.exe
+          Write-Host "Installed files:"; Get-ChildItem $portable -Recurse | Select-Object -First 40 FullName
+          $proc = Start-Process -FilePath $exe.FullName -PassThru
+          Start-Sleep -Seconds 15
+          if ($proc.HasExited) { throw "App exited early with code $($proc.ExitCode)" }
+          Write-Host 'Smoke test passed: app is running after 15s'
+          Stop-Process -Id $proc.Id -Force
+          Get-ChildItem $portable -Filter 'uninstall*' | Remove-Item -Force -ErrorAction SilentlyContinue
+          Compress-Archive -Path "$portable\*" -DestinationPath out-final/eIsland-Portable.zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: eIsland-Windows-x64
+          path: out-final/*
+          if-no-files-found: error
